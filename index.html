@@ -29,9 +29,10 @@ a.go:focus-visible{outline:3px solid #e0a100;outline-offset:3px}
   <h1>지도·문자 열기</h1>
   <p class="hint" id="top">① 지도를 누르고, 다 보면 이 화면으로 돌아와 ② 문자를 누르세요.</p>
   <div class="box"><span class="k">주소</span><span class="v" id="addr">-</span></div>
-  <a class="go map" id="goMap" href="#"><span class="n">1</span><span>네이버 지도 열기<small>지도 앱에서 이 주소 검색</small></span></a>
-  <p class="note">크롬 안에서 <b>웹 지도</b>가 열리면 이 휴대폰에 <b>네이버 지도 앱이 없는 것</b>입니다. 앱이 있으면 앱으로 바로 열립니다. 웹 지도에서도 주소 확인과 '내비게이션'은 됩니다.</p>
-  <div class="alt"><a id="webMap" href="#">웹 지도로 열기</a><button id="cpA" type="button">주소 복사</button></div>
+  <a class="go map" id="goMap" href="#"><span class="n">1</span><span>네이버 지도 앱 열기<small>방식 ① · 앱에서 이 주소 검색</small></span></a>
+  <div class="alt"><a id="goMap2" href="#">앱이 안 열리면: 방식 ②</a><a id="webMap" href="#">웹 지도로 열기</a></div>
+  <p class="note">"네이버 지도에서 열까요?"가 뜨면 <b>열기</b>를 누르세요. 방식 ①을 눌러도 아무 일이 없으면 방식 ②를 누르세요. 크롬 안에 웹 지도가 뜨면 앱으로 넘어가지 못한 것입니다.</p>
+  <div class="alt"><button id="cpA" type="button">주소 복사</button></div>
   <div class="box"><span class="k">문자 받을 번호</span><span class="v num" id="phone">-</span><span class="hint" id="msg"></span></div>
   <a class="go sms" id="goSms" href="#"><span class="n">2</span><span>문자 열기<small>번호·문구가 들어간 채로 열림. 보내기는 직접</small></span></a>
   <p class="note">이 번호와 문자한 적이 있으면 <b>그 대화방</b>이 열리고 아래 입력칸에 문구가 들어갑니다. 휴대폰 문자 앱이 같은 번호를 한 방으로 묶기 때문이며, 보내기를 누르면 새 문자로 나갑니다. 위쪽 사진·글은 예전 기록입니다.</p>
@@ -48,9 +49,13 @@ a.go:focus-visible{outline:3px solid #e0a100;outline-offset:3px}
   var $=function(id){return document.getElementById(id);};
   if(a){
     $("addr").textContent=a;
-    $("goMap").href="intent://search?query="+encodeURIComponent(a)+"&appname="+APP+"#Intent;scheme=nmap;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;package=com.nhn.android.nmap;S.browser_fallback_url="+encodeURIComponent(web)+";end";
+    var q="search?query="+encodeURIComponent(a)+"&appname="+encodeURIComponent(APP);
+    // 방식 ①: 네이버 공식 URL Scheme 그대로
+    $("goMap").href="nmap://"+q;
+    // 방식 ②: 인텐트, 웹 지도 대체 경로 없음(앱을 못 찾으면 Play 스토어로 감 → 원인 구분용)
+    $("goMap2").href="intent://"+q+"#Intent;scheme=nmap;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;package=com.nhn.android.nmap;end";
     $("webMap").href=web;
-  } else { $("goMap").removeAttribute("href"); $("goMap").style.opacity=.4; }
+  } else { ["goMap","goMap2"].forEach(function(id){ $(id).removeAttribute("href"); $(id).style.opacity=.4; }); }
   if(digits(p).length>=8){
     $("phone").textContent=p; $("msg").textContent="문구: "+m;
     $("goSms").href="sms:"+digits(p)+"?body="+encodeURIComponent(m);
