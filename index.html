@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>지도·문자 열기</title>
+<style>
+:root{--bg:#f3f5f4;--paper:#fff;--ink:#15201c;--muted:#5b6964;--line:#d3dbd8;--map:#0b7a55;--sms:#2b4bb8;--btn-ink:#fff;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1513;--paper:#18211e;--ink:#eef3f1;--muted:#9aa8a3;--line:#2c3834;--map:#1fa776;--sms:#6f8cff;--btn-ink:#06100c;color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;font-size:17px;line-height:1.5}
+.wrap{max-width:520px;margin:0 auto;padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 32px max(16px,env(safe-area-inset-left));display:flex;flex-direction:column;gap:14px}
+h1{font-size:19px;margin:4px 0 0}
+.box{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.k{font-size:13px;color:var(--muted);font-weight:600}
+.v{font-size:19px;font-weight:700;word-break:keep-all;overflow-wrap:anywhere}
+.v.num{font-family:ui-monospace,Consolas,monospace;font-size:22px}
+a.go{display:flex;align-items:center;gap:12px;min-height:84px;padding:0 18px;border-radius:14px;color:var(--btn-ink);text-decoration:none;font-size:22px;font-weight:700}
+a.go small{display:block;font-size:13px;font-weight:500;opacity:.85}
+a.go .n{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.22);flex:none}
+.map{background:var(--map)}.sms{background:var(--sms)}
+a.go:focus-visible{outline:3px solid #e0a100;outline-offset:3px}
+.alt{display:flex;gap:8px;flex-wrap:wrap}
+.alt a,.alt button{flex:1 1 auto;font:inherit;font-size:15px;font-weight:600;border:0;border-radius:10px;padding:10px 12px;background:var(--line);color:var(--ink);text-decoration:none;text-align:center;cursor:pointer}
+.hint{font-size:13.5px;color:var(--muted)}
+.err{color:#b42318;font-weight:600}
+</style></head><body>
+<div class="wrap">
+  <h1>지도·문자 열기</h1>
+  <p class="hint" id="top">① 지도를 누르고, 다 보면 이 화면으로 돌아와 ② 문자를 누르세요.</p>
+  <div class="box"><span class="k">주소</span><span class="v" id="addr">-</span></div>
+  <a class="go map" id="goMap" href="#"><span class="n">1</span><span>네이버 지도 열기<small>지도 앱에서 이 주소 검색</small></span></a>
+  <div class="alt"><a id="webMap" href="#">앱이 안 열리면: 웹 지도</a><button id="cpA" type="button">주소 복사</button></div>
+  <div class="box"><span class="k">문자 받을 번호</span><span class="v num" id="phone">-</span><span class="hint" id="msg"></span></div>
+  <a class="go sms" id="goSms" href="#"><span class="n">2</span><span>문자 열기<small>번호·문구가 들어간 채로 열림. 보내기는 직접</small></span></a>
+  <div class="alt"><button id="cpP" type="button">번호 복사</button></div>
+  <p class="hint">이 화면 주소에 손님 주소·번호가 들어 있습니다. 배달이 끝나면 이 탭을 닫아 주세요.</p>
+</div>
+<script>
+(function(){
+  var APP=location.hostname||"delivery-helper"; // 네이버 안내: 모바일웹은 appname에 웹페이지 주소
+  function digits(s){return String(s||"").replace(/\D/g,"");}
+  function get(k){var m=new RegExp("(?:^|&)"+k+"=([^&]*)").exec(location.hash.slice(1));try{return m?decodeURIComponent(m[1]):"";}catch(e){return "";}}
+  var a=get("a").trim(), p=get("p"), m=get("m")||"안녕하세요, 배달 기사입니다. 곧 도착합니다.";
+  var web="https://m.map.naver.com/search2/search.naver?query="+encodeURIComponent(a);
+  var $=function(id){return document.getElementById(id);};
+  if(a){
+    $("addr").textContent=a;
+    $("goMap").href="intent://search?query="+encodeURIComponent(a)+"&appname="+APP+"#Intent;scheme=nmap;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;package=com.nhn.android.nmap;S.browser_fallback_url="+encodeURIComponent(web)+";end";
+    $("webMap").href=web;
+  } else { $("goMap").removeAttribute("href"); $("goMap").style.opacity=.4; }
+  if(digits(p).length>=8){
+    $("phone").textContent=p; $("msg").textContent="문구: "+m;
+    $("goSms").href="sms:"+digits(p)+"?body="+encodeURIComponent(m);
+  } else { $("goSms").removeAttribute("href"); $("goSms").style.opacity=.4; }
+  if(!a && !p){ $("top").textContent="주소·번호가 없습니다. 도우미 화면에서 다시 눌러 주세요."; $("top").className="hint err"; }
+  function copy(t,btn){ if(!t) return; var o=btn.textContent;
+    (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){btn.textContent="복사됨";},function(){btn.textContent="길게 눌러 복사";});
+    setTimeout(function(){btn.textContent=o;},1500); }
+  $("cpA").onclick=function(e){copy(a,e.currentTarget);};
+  $("cpP").onclick=function(e){copy(digits(p),e.currentTarget);};
+})();
+</script>
+</body></html>
