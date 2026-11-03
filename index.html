@@ -22,15 +22,19 @@ a.go:focus-visible{outline:3px solid #e0a100;outline-offset:3px}
 .alt a,.alt button{flex:1 1 auto;font:inherit;font-size:15px;font-weight:600;border:0;border-radius:10px;padding:10px 12px;background:var(--line);color:var(--ink);text-decoration:none;text-align:center;cursor:pointer}
 .hint{font-size:13.5px;color:var(--muted)}
 .err{color:#b42318;font-weight:600}
+.note{margin:0;font-size:14px;line-height:1.55;color:var(--muted);background:var(--paper);border:1px dashed var(--line);border-radius:10px;padding:10px 12px}
+.note b{color:var(--ink)}
 </style></head><body>
 <div class="wrap">
   <h1>지도·문자 열기</h1>
   <p class="hint" id="top">① 지도를 누르고, 다 보면 이 화면으로 돌아와 ② 문자를 누르세요.</p>
   <div class="box"><span class="k">주소</span><span class="v" id="addr">-</span></div>
   <a class="go map" id="goMap" href="#"><span class="n">1</span><span>네이버 지도 열기<small>지도 앱에서 이 주소 검색</small></span></a>
-  <div class="alt"><a id="webMap" href="#">앱이 안 열리면: 웹 지도</a><button id="cpA" type="button">주소 복사</button></div>
+  <p class="note">크롬 안에서 <b>웹 지도</b>가 열리면 이 휴대폰에 <b>네이버 지도 앱이 없는 것</b>입니다. 앱이 있으면 앱으로 바로 열립니다. 웹 지도에서도 주소 확인과 '내비게이션'은 됩니다.</p>
+  <div class="alt"><a id="webMap" href="#">웹 지도로 열기</a><button id="cpA" type="button">주소 복사</button></div>
   <div class="box"><span class="k">문자 받을 번호</span><span class="v num" id="phone">-</span><span class="hint" id="msg"></span></div>
   <a class="go sms" id="goSms" href="#"><span class="n">2</span><span>문자 열기<small>번호·문구가 들어간 채로 열림. 보내기는 직접</small></span></a>
+  <p class="note">이 번호와 문자한 적이 있으면 <b>그 대화방</b>이 열리고 아래 입력칸에 문구가 들어갑니다. 휴대폰 문자 앱이 같은 번호를 한 방으로 묶기 때문이며, 보내기를 누르면 새 문자로 나갑니다. 위쪽 사진·글은 예전 기록입니다.</p>
   <div class="alt"><button id="cpP" type="button">번호 복사</button></div>
   <p class="hint">이 화면 주소에 손님 주소·번호가 들어 있습니다. 배달이 끝나면 이 탭을 닫아 주세요.</p>
 </div>
